@@ -17,7 +17,9 @@ jobs:
           -p 6443:6443 -p 80:80 -p 443:443 -p 8080:8080 -p 30001:30001\
           --expose 6443 \
           rancher/k3s:v1.22.17-k3s1 server
-    
+    - run: |
+        export KUBECONFIG="$KUBECONFIG"
+        kubectl get po -A --kubeconfig $KUBECONFIG
     # install KFP on k3s cluster
     - run: |
         export PIPELINE_VERSION=1.8.5
