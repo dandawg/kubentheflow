@@ -1,5 +1,9 @@
 name: k3s-hello-component-test
-on: push
+on: 
+  workflow_dispatch:
+  push:
+    branches:
+    - 'main'
 jobs:
   test-hello:
     runs-on: ubuntu-latest
