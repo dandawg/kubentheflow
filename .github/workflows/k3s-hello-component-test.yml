@@ -3,6 +3,9 @@ on: push
 jobs:
   test-hello-Doug:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        hello_test: ["test_hello_pipeline_doug", "test_hello_pipeline_alice3000"]
     env:
       KUBECONFIG: /tmp/output/kubeconfig-k3s1.yaml
     steps:
@@ -44,7 +47,7 @@ jobs:
     
     # test one component pipeline
     - uses: actions/checkout@v3
-    - run: pytest kfp_component_test_example_github_actions/tests/test_hello_kfp.py -k test_hello_pipeline_doug
+    - run: pytest kfp_component_test_example_github_actions/tests/test_hello_kfp.py -k ${{ matrix.hello_test }}
 
   # test-hello-Allice3000:
   #   runs-on: ubuntu-latest
