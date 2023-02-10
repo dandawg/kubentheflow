@@ -18,6 +18,7 @@ jobs:
           --expose 6443 \
           rancher/k3s:v1.22.17-k3s1 server
     - run: |
+        sleep 20
         export KUBECONFIG="$KUBECONFIG"
         kubectl get po -A --kubeconfig $KUBECONFIG
     # install KFP on k3s cluster
