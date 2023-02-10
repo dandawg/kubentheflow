@@ -1,7 +1,7 @@
 name: k3s-hello-component-test
 on: push
 jobs:
-  test-hello-Doug:
+  test-hello:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -20,9 +20,7 @@ jobs:
           -p 6443:6443 -p 80:80 -p 443:443 -p 8080:8080 -p 30001:30001\
           --expose 6443 \
           rancher/k3s:v1.22.17-k3s1 server
-    - run: |
-        sleep 20
-      # export KUBECONFIG="$KUBECONFIG"
+    - run: sleep 20
       # kubectl get po -A --kubeconfig $KUBECONFIG
     # install KFP on k3s cluster
     - run: |
@@ -48,45 +46,3 @@ jobs:
     # test one component pipeline
     - uses: actions/checkout@v3
     - run: pytest kfp_component_test_example_github_actions/tests/test_hello_kfp.py -k ${{ matrix.hello_test }}
-
-  # test-hello-Allice3000:
-  #   runs-on: ubuntu-latest
-  #   env:
-  #     KUBECONFIG: /tmp/output/kubeconfig-k3s1.yaml
-  #   steps:
-  #   - run: pip install pytest kfp==1.8.18
-  #   # run k3s in a container
-  #   - run: |
-  #       docker run -d --privileged \
-  #         --name=k3s-v1.22.17 \
-  #         -e K3S_KUBECONFIG_OUTPUT=/tmp/output/kubeconfig-k3s1.yaml \
-  #         -v /tmp/output:/tmp/output \
-  #         -e K3S_KUBECONFIG_MODE=666 \
-  #         -p 6443:6443 -p 80:80 -p 443:443 -p 8080:8080 -p 30001:30001\
-  #         --expose 6443 \
-  #         rancher/k3s:v1.22.17-k3s1 server
-    
-  #   # install KFP on k3s cluster
-  #   - run: |
-  #       export PIPELINE_VERSION=1.8.5
-  #       kubectl apply -k "github.com/kubeflow/pipelines/manifests/kustomize/cluster-scoped-resources?ref=$PIPELINE_VERSION"
-  #       kubectl wait --for condition=established --timeout=60s crd/applications.app.k8s.io
-  #       kubectl apply -k "github.com/kubeflow/pipelines/manifests/kustomize/env/platform-agnostic-pns?ref=$PIPELINE_VERSION"
-  #   - run: sleep 60 && kubectl get po -n kubeflow
-  #   - run: |
-  #       kubectl wait po --all --for=condition=Ready -n kubeflow --timeout 360s
-  #       kubectl get po -n kubeflow
-
-  #   # expose service
-  #   - run: |
-  #       kubectl patch svc ml-pipeline-ui \
-  #       -n kubeflow \
-  #       -p '{"spec": {"type": "NodePort"}}'
-  #   - run: |
-  #       kubectl patch svc ml-pipeline-ui \
-  #       -n kubeflow \
-  #       -p '{"spec": {"ports": [{"name":"http","port":80,"targetPort":3000,"protocol":"TCP","nodePort":30001}]}}'
-    
-  #   # test one component pipeline
-  #   - uses: actions/checkout@v3
-  #   - run: pytest kfp_component_test_example_github_actions/tests/test_hello_kfp.py -k test_hello_pipeline_alice3000
