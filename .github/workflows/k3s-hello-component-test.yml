@@ -11,7 +11,7 @@ jobs:
     - run: |
         docker run -d --privileged \
           --name=k3s-v1.22.17 \
-          -e K3S_KUBECONFIG_OUTPUT=/tmp/output/kubeconfig-k3s1.yaml \
+          -e K3S_KUBECONFIG_OUTPUT=$KUBECONFIG \
           -v /tmp/output:/tmp/output \
           -e K3S_KUBECONFIG_MODE=666 \
           -p 6443:6443 -p 80:80 -p 443:443 -p 8080:8080 -p 30001:30001\
@@ -19,8 +19,8 @@ jobs:
           rancher/k3s:v1.22.17-k3s1 server
     - run: |
         sleep 20
-        export KUBECONFIG="$KUBECONFIG"
-        kubectl get po -A --kubeconfig $KUBECONFIG
+      # export KUBECONFIG="$KUBECONFIG"
+      # kubectl get po -A --kubeconfig $KUBECONFIG
     # install KFP on k3s cluster
     - run: |
         export PIPELINE_VERSION=1.8.5
