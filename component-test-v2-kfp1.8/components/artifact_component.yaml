@@ -1,0 +1,70 @@
+name: Artifact component
+outputs:
+- {name: output_model, type: Model}
+- {name: metrics, type: Metrics}
+implementation:
+  container:
+    image: python:3.8-slim-buster
+    command:
+    - sh
+    - -c
+    - |2
+
+      if ! [ -x "$(command -v pip)" ]; then
+          python3 -m ensurepip || python3 -m ensurepip --user || apt-get install python3-pip
+      fi
+
+      PIP_DISABLE_PIP_VERSION_CHECK=1 python3 -m pip install --quiet     --no-warn-script-location 'pandas' 'scikit-learn' 'cloudpickle' 'kfp==1.8.12' && "$0" "$@"
+    - sh
+    - -ec
+    - |
+      program_path=$(mktemp -d)
+      printf "%s" "$0" > "$program_path/ephemeral_component.py"
+      python3 -m kfp.v2.components.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+    - |2+
+
+      import kfp
+      from kfp.v2 import dsl
+      from kfp.v2.dsl import *
+      from typing import *
+
+      def artifact_component(
+          # input_data: Input[Dataset],
+          # input_file: InputPath(),
+          # output_file: OutputPath(),
+          output_model: Output[Model],
+          metrics: Output[Metrics]
+      ):
+          import pandas as pd
+          import cloudpickle
+          from sklearn.neighbors import KNeighborsClassifier
+
+          # # read input data artifact
+          # with open(input_data.path) as d:
+          #     inp_d = pd.read_csv(d)
+          # # read input file
+          # with open(input_file) as f:
+          #     inp_f = f.read()
+
+          # # write output file
+          # with open(output_file, 'w') as f:
+          #     f.write('some output content')
+
+          # output model artifact
+          model = KNeighborsClassifier()
+          with open(output_model.path, 'wb') as m:
+              cloudpickle.dump(model, m)
+
+          # metrics artifact
+          metrics.log_metric("score", 1000)
+          metrics.metadata["comment"] = "Amazing!"
+
+          import logging
+          logging.info(f"Metric path: {metrics.path}")
+          logging.info(f"Model Path: {output_model.path}")
+
+    args:
+    - --executor_input
+    - {executorInput: null}
+    - --function_to_execute
+    - artifact_component

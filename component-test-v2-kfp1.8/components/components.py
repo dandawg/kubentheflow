@@ -39,9 +39,9 @@ def param_component(
     output_component_file="artifact_component.yaml"
 )
 def artifact_component(
-    input_data: Input[Dataset],
-    input_file: InputPath(),
-    output_file: OutputPath(),
+    # input_data: Input[Dataset],
+    # input_file: InputPath(),
+    # output_file: OutputPath(),
     output_model: Output[Model],
     metrics: Output[Metrics]
 ):
@@ -49,21 +49,29 @@ def artifact_component(
     import cloudpickle
     from sklearn.neighbors import KNeighborsClassifier
 
-    # read input data artifact
-    with open(input_data.path) as d:
-        inp_d = pd.read_csv(d)
-    # read input file
-    with open(input_file) as f:
-        inp_f = f.read()
+    # # read input data artifact
+    # with open(input_data.path) as d:
+    #     inp_d = pd.read_csv(d)
+    # # read input file
+    # with open(input_file) as f:
+    #     inp_f = f.read()
     
+    # # write output file
+    # with open(output_file, 'w') as f:
+    #     f.write('some output content')
+
     # output model artifact
     model = KNeighborsClassifier()
     with open(output_model.path, 'wb') as m:
-        cloudpickle.dump(model)
+        cloudpickle.dump(model, m)
     
     # metrics artifact
-    metrics.name = "Test"
     metrics.log_metric("score", 1000)
     metrics.metadata["comment"] = "Amazing!"
+
+    import logging
+    logging.info(f"Metric path: {metrics.path}")
+    logging.info(f"Model Path: {output_model.path}")
+
 
 
